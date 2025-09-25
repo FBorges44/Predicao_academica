@@ -1,0 +1,260 @@
+/* Estilos Globais e Variáveis */
+:root {
+    --bg-color: #f4f7f9;
+    --main-bg: #ffffff;
+    --sidebar-bg: #2c3e50;
+    --sidebar-text: #ecf0f1;
+    --sidebar-active: #3498db;
+    --text-color: #34495e;
+    --border-color: #eaecee;
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    --risk-high: #ef4444; 
+    --risk-low: #34d399;
+    --risk-medium: #facc15;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+/* Layout Principal */
+.app {
+    display: flex;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--main-bg);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand { 
+    display: flex; 
+    align-items: center; 
+}
+
+.logo {
+    background-color: var(--sidebar-active);
+    color: white;
+    width: 40px; 
+    height: 40px;
+    display: grid; 
+    place-items: center;
+    border-radius: 8px; 
+    font-weight: bold; 
+    font-size: 1.2rem;
+    margin-right: 1rem;
+}
+
+.title { 
+    font-size: 1.2rem; 
+    font-weight: 600; 
+}
+
+.subtitle { 
+    font-size: 0.9rem; 
+    color: #7f8c8d; 
+}
+
+.controls button {
+    background-color: var(--sidebar-active);
+    color: white; 
+    border: none; 
+    padding: 10px 15px;
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 1rem;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.controls button:hover { 
+    background-color: #2980b9; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Barra Lateral (Sidebar) */
+.sidebar {
+    width: 220px;
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding-top: 2rem;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.nav a {
+    display: block;
+    padding: 1rem 2rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.nav a:hover { 
+    background-color: rgba(255,255,255,0.1); 
+}
+
+.nav a.active { 
+    background-color: rgba(52, 152, 219, 0.2); 
+    font-weight: bold; 
+    border-left: 3px solid var(--sidebar-active);
+}
+
+/* Conteúdo Principal */
+.main {
+    flex: 1;
+    padding: 2rem;
+}
+
+/* Cards e KPIs */
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.card {
+    background-color: var(--main-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.kpi-value { 
+    font-size: 2.5rem; 
+    font-weight: bold; 
+}
+
+.kpi-label { 
+    color: #7f8c8d; 
+    margin-top: 0.5rem; 
+}
+
+/* Layout de Linha para Gráficos */
+.row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Tabelas */
+.table-wrap { 
+    margin-top: 2rem; 
+    overflow-x: auto;
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+th, td { 
+    padding: 1rem; 
+    text-align: left; 
+    border-bottom: 1px solid var(--border-color); 
+}
+
+th { 
+    font-weight: 600; 
+    background-color: #f9fafb;
+}
+
+.status-text { 
+    font-weight: bold; 
+}
+
+/* --- NOVOS ESTILOS PARA A PÁGINA DE RISCO --- */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+}
+
+.status-high {
+    background-color: var(--risk-high);
+}
+
+.status-medium {
+    background-color: var(--risk-medium);
+    color: #333;
+}
+
+.status-low {
+    background-color: var(--risk-low);
+}
+/* --- FIM DOS NOVOS ESTILOS --- */
+
+
+/* Alertas */
+.alerts { 
+    margin-top: 2rem; 
+}
+
+.alert-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.alert-item:last-child { 
+    border-bottom: none; 
+}
+
+.alert-item strong { 
+    color: var(--risk-high); 
+}
+
+/* Modal de Upload */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000;
+    left: 0; top: 0; 
+    width: 100%; 
+    height: 100%;
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.5);
+    align-items: center; 
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fefefe; 
+    margin: auto; 
+    padding: 2rem;
+    border: 1px solid #888; 
+    width: 90%; 
+    max-width: 500px;
+    border-radius: 8px; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close-button {
+    color: #aaa; 
+    float: right; 
+    font-size: 28px;
+    font-weight: bold; 
+    cursor: pointer;
+}

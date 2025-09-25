@@ -1,0 +1,100 @@
+{% load static %} <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Evasão Acadêmica</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="logo">EA</div>
+            <div>
+                <div class="title">Painel de Evasão</div>
+                <div class="subtitle">Curso de Computação</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="openUploadModalBtn">Carregar Dados</button>
+        </div>
+    </header>
+
+    <div class="app">
+        <aside class="sidebar">
+            <nav class="nav">
+                <a href="#" class="active">Visão Geral</a>
+                <a href="alunos_risco/alunos_risco.html">Alunos em Risco</a>
+                <a href="#">Relatórios</a>
+                <a href="#">Configurações</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="kpis">
+                <div class="card">
+                    <div class="kpi-value" id="avg-risk">--%</div>
+                    <div class="kpi-label">Probabilidade Média de Evasão</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" id="students-risk">--</div>
+                    <div class="kpi-label">Alunos em Risco</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" id="retention-rate">--%</div>
+                    <div class="kpi-label">Taxa de Permanência</div>
+                </div>
+                <div class="card">
+                    <div class="kpi-value" id="alerts-count">--</div>
+                    <div class="kpi-label">Alertas Ativos</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="card">
+                    <h3>Evolução da Evasão (Simulado)</h3>
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Distribuição de Risco</h3>
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card table-wrap">
+                <h3>Lista de Alunos</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Probabilidade de Evasão</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTable"></tbody>
+                </table>
+            </div>
+            
+            <div class="card alerts">
+                <h3>Alertas</h3>
+                <div id="alertsList"></div>
+            </div>
+        </main>
+    </div>
+
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Enviar Dados para Análise</h2>
+            <p>Selecione o arquivo .json com os dados dos alunos.</p>
+            <input type="file" id="jsonFile" accept=".json">
+            <button id="uploadBtn">Enviar e Processar</button>
+            <p id="uploadStatus" style="margin-top: 1rem;"></p>
+        </div>
+    </div>
+
+    <script src="{% static 'script.js' %}"></script>    
+</body>
+</html>
