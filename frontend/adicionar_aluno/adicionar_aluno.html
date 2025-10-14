@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Aluno - Painel de Evasão</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="logo">EA</div>
+            <div>
+                <div class="title">Painel de Evasão</div>
+                <div class="subtitle">Curso de Computação</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app">
+        <aside class="sidebar">
+            <nav class="nav">
+               <a href="/" class="active">Visão Geral</a>
+                <a href="/alunos_risco/">Alunos em Risco</a>
+                <a href="/relatorios/">Relatórios</a>
+                <a href="/configuracoes/">Configurações</a>
+                <a href="/adicionar_aluno/">Adicionar Aluno</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="card">
+                <h3>Adicionar Novo Aluno para Análise</h3>
+                <p>Insira os dados do aluno abaixo. Após o envio, o modelo de IA irá processar e gerar a predição de risco.</p>
+                <form id="addStudentForm" class="student-form">
+                    <div class="form-group">
+                        <label for="matricula">Matrícula</label>
+                        <input type="text" id="matricula" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rendimento">Sexo</label>
+                        <input type="text" id="Sexo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reprovacoes">Bairro</label>
+                        <input type="text" id="Bairro" step="1" min="0" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Enviar para Análise</button>
+                </form>
+                <div id="formStatus" class="form-status"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="{% static 'adicionar_aluno.js' %}"></script>
+    <style>
+        /* Estilos adicionais para o formulário */
+        .student-form { margin-top: 2rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .submit-btn {
+            background-color: var(--sidebar-active);
+            color: white; border: none; padding: 12px 20px;
+            border-radius: 5px; cursor: pointer; font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover { background-color: #2980b9; }
+        .form-status { margin-top: 1rem; font-weight: bold; }
+    </style>
+</body>
+</html>

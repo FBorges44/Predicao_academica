@@ -10,9 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Coleta os dados do formulário
         const matricula = document.getElementById('matricula').value;
         const nome = document.getElementById('nome').value;
-        const frequencia = parseFloat(document.getElementById('frequencia').value);
-        const rendimento = parseFloat(document.getElementById('rendimento').value);
-        const reprovacoes = parseInt(document.getElementById('reprovacoes').value);
+        const Sexo = parseFloat(document.getElementById('Sexo').value);
+        const Bairro = parseInt(document.getElementById('Bairro').value);
 
         statusEl.textContent = 'Enviando dados para processamento...';
         statusEl.style.color = '#333';

@@ -6,24 +6,37 @@ from .models import Aluno
 from .serializers import AlunoSerializer
 from .servicos import processar_predicao_aluno
 
-# Um ViewSet agrupa toda a lógica para um modelo específico.
-# Ele é a peça central que o Router (nas URLs) irá usar.
 class AlunoViewSet(viewsets.ModelViewSet):
-    """
-    API para visualizar e gerenciar dados de alunos e suas predições.
-    """
-    # Define o conjunto de dados que esta view irá manipular (todos os alunos)
     queryset = Aluno.objects.all().order_by('nome')
-    # Define o serializador para converter os dados para JSON
     serializer_class = AlunoSerializer
 
-    # A anotação @action cria uma nova rota personalizada dentro deste ViewSet.
-    # Neste caso, ela cria a URL para o upload do arquivo JSON.
+    # NOVO MÉTODO ADICIONADO
+    # Este método é chamado automaticamente quando o frontend envia um POST para /api/alunos/
+    def create(self, request, *args, **kwargs):
+        """
+        Cria um novo aluno a partir de dados de formulário,
+        e dispara o processamento pelo modelo de IA.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Pega os dados validados
+        data = serializer.validated_data
+        matricula = data.get('matricula')
+        dados_json = data.get('dados_json')
+
+        # Reutiliza nossa função de serviço principal, que já chama a IA e salva tudo
+        if matricula and dados_json:
+            processar_predicao_aluno(matricula=matricula, dados_json=dados_json)
+            return Response({"status": "Aluno processado com sucesso"}, status=status.HTTP_201_CREATED)
+        
+        return Response({"erro": "Matrícula ou dados JSON ausentes"}, status=status.HTTP_400_BAD_REQUEST)
+
+
     @action(detail=False, methods=['post'], url_path='upload-json')
     def upload_json(self, request):
         """
-        Endpoint para receber um arquivo JSON com dados de um ou mais alunos,
-        processá-los e disparar a predição.
+        Endpoint para upload de arquivo JSON.
         """
         arquivo_json = request.data.get('arquivo')
         if not arquivo_json:

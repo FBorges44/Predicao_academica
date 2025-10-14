@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Painel de Evasão</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="logo">EA</div>
+            <div>
+                <div class="title">Painel de Evasão</div>
+                <div class="subtitle">Curso de Computação</div>
+            </div>
+        </div>
+        <div class="controls">
+            <button>Carregar Dados</button>
+        </div>
+    </header>
+
+    <div class="app">
+        <aside class="sidebar">
+            <nav class="nav">
+                <a href="/">Visão Geral</a>
+                <a href="/alunos_risco/">Alunos em Risco</a>
+                <a href="/relatorios/">Relatórios</a>
+                <a href="#" class="active">Configurações</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="card">
+                <h3>Configurações</h3>
+                <p>Página em construção. Aqui você poderá configurar os parâmetros do sistema.</p>
+            </div>
+        </main>
+    </div>
+    
+</body>
+</html>
