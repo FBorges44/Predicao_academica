@@ -1,61 +1,86 @@
+// Arquivo: frontend/script.js (Versão API / Banco de Dados)
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('addStudentForm');
-    const statusEl = document.getElementById('formStatus');
+// Configuração do Modal de Upload (para arquivos JSON)
+function setupUploadModal() {
+    const openBtn = document.getElementById('openUploadModalBtn');
+    const modal = document.getElementById('uploadModal');
+    if (!openBtn || !modal) return;
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Impede o recarregamento da página
+    openBtn.onclick = () => modal.style.display = 'flex';
+    const closeBtn = document.querySelector('.close-button');
+    if (closeBtn) closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = (event) => { if (event.target == modal) modal.style.display = 'none'; };
 
-        // 1. Coleta os dados do formulário
-        const matricula = document.getElementById('matricula').value;
-        const nome = document.getElementById('nome').value;
-        const frequencia = parseFloat(document.getElementById('frequencia').value);
-        const rendimento = parseFloat(document.getElementById('rendimento').value);
-        const reprovacoes = parseInt(document.getElementById('reprovacoes').value);
-
-        statusEl.textContent = 'Enviando dados para processamento...';
-        statusEl.style.color = '#333';
-
-        // 2. Monta o payload (carga de dados) que a API espera
-        const payload = {
-            matricula: matricula,
-            nome: nome,
-            // O backend espera um campo 'dados_json', então agrupamos os outros dados aqui
-            dados_json: {
-                nome: nome,
-                matricula: matricula,
-                frequencia_media: frequencia,
-                rendimento_medio: rendimento,
-                disciplinas_reprovadas: reprovacoes
+    const uploadBtn = document.getElementById('uploadBtn');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            const fileInput = document.getElementById('jsonFile');
+            const statusEl = document.getElementById('uploadStatus');
+            if (fileInput.files.length === 0) {
+                statusEl.textContent = 'Selecione um arquivo.'; return;
             }
-        };
+            
+            const formData = new FormData();
+            formData.append('arquivo', fileInput.files[0]);
+            statusEl.textContent = 'Processando...';
 
-        // 3. Envia os dados para o backend via POST
-        try {
-            const response = await fetch(`${API_BASE_URL}/alunos/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                // Tenta extrair uma mensagem de erro do backend
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Ocorreu um erro no servidor.');
+            try {
+                const response = await fetch(`${API_BASE_URL}/alunos/upload-json/`, {
+                    method: 'POST', body: formData
+                });
+                if (!response.ok) throw new Error('Erro no upload');
+                
+                statusEl.textContent = 'Sucesso!';
+                setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+                statusEl.textContent = 'Falha no upload.';
             }
+        });
+    }
+}
 
-            const result = await response.json();
-            statusEl.textContent = `Sucesso! Aluno ${nome} foi adicionado e analisado.`;
-            statusEl.style.color = 'green';
-            form.reset(); // Limpa o formulário
+// Busca os alunos do Banco de Dados e preenche a tabela
+async function carregarAlunosDoBanco() {
+    const tbody = document.getElementById('studentTable');
+    if (!tbody) return;
 
-        } catch (error) {
-            console.error('Falha ao adicionar aluno:', error);
-            statusEl.textContent = `Erro: ${error.message}`;
-            statusEl.style.color = 'red';
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align: center;">Buscando dados no servidor...</td></tr>`;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/alunos/`);
+        const alunos = await response.json();
+
+        if (alunos.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center;">Nenhum aluno no banco de dados.</td></tr>`;
+            return;
         }
-    });
+
+        tbody.innerHTML = '';
+        // Ordena por maior probabilidade de evasão
+        alunos.sort((a, b) => (b.predicao?.probabilidade || 0) - (a.predicao?.probabilidade || 0));
+
+        alunos.forEach(aluno => {
+            const row = document.createElement('tr');
+            const prob = aluno.predicao ? (aluno.predicao.probabilidade * 100).toFixed(1) : '0.0';
+            const risco = aluno.predicao?.risco_evasao ? 'Alto Risco' : 'Baixo Risco';
+            const cor = aluno.predicao?.risco_evasao ? 'red' : 'green';
+
+            row.innerHTML = `
+                <td>${aluno.nome} (${aluno.matricula})</td>
+                <td><strong>${prob}%</strong></td>
+                <td style="color: ${cor}; font-weight: bold;">${risco}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Erro API:", error);
+        tbody.innerHTML = `<tr><td colspan="3">Erro ao conectar com o banco de dados.</td></tr>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupUploadModal();
+    carregarAlunosDoBanco();
 });

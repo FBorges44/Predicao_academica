@@ -1,59 +1,82 @@
+// Arquivo: frontend/adicionar_aluno/script.js
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+// --- Função Auxiliar para pegar o CSRF Token do Django ---
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+// ---------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('addStudentForm');
     const statusEl = document.getElementById('formStatus');
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Impede o recarregamento da página
+    if (!form) return;
 
-        // 1. Coleta os dados do formulário
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        // 1. Coleta os dados
         const matricula = document.getElementById('matricula').value;
         const nome = document.getElementById('nome').value;
-        const Sexo = parseFloat(document.getElementById('Sexo').value);
-        const Bairro = parseInt(document.getElementById('Bairro').value);
+        const sexo = document.getElementById('Sexo').value;
+        const bairro = document.getElementById('Bairro').value;
 
-        statusEl.textContent = 'Enviando dados para processamento...';
+        statusEl.textContent = 'Enviando para o Banco de Dados...';
         statusEl.style.color = '#333';
 
-        // 2. Monta o payload (carga de dados) que a API espera
+        // 2. Monta o pacote de dados
         const payload = {
             matricula: matricula,
             nome: nome,
-            // O backend espera um campo 'dados_json', então agrupamos os outros dados aqui
             dados_json: {
                 nome: nome,
                 matricula: matricula,
-                frequencia_media: frequencia,
-                rendimento_medio: rendimento,
-                disciplinas_reprovadas: reprovacoes
+                sexo: sexo,
+                bairro: bairro
+                // Adicione outros campos necessários aqui
             }
         };
 
-        // 3. Envia os dados para o backend via POST
+        // Pega o token de segurança
+        const csrftoken = getCookie('csrftoken');
+
+        // 3. Envia para a API (Backend)
         try {
             const response = await fetch(`${API_BASE_URL}/alunos/`, {
                 method: 'POST',
-                headers: {
+                headers: { 
                     'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken // <--- AQUI ESTÁ A CHAVE MÁGICA
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                // Tenta extrair uma mensagem de erro do backend
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Ocorreu um erro no servidor.');
+                // Se der erro, tenta ler a mensagem do servidor
+                const errorData = await response.json().catch(() => ({}));
+                const msgErro = errorData.erro || errorData.detail || `Erro ${response.status}`;
+                throw new Error(msgErro);
             }
 
-            const result = await response.json();
-            statusEl.textContent = `Sucesso! Aluno ${nome} foi adicionado e analisado.`;
+            statusEl.textContent = 'Sucesso! Aluno salvo no banco.';
             statusEl.style.color = 'green';
-            form.reset(); // Limpa o formulário
+            form.reset();
 
         } catch (error) {
-            console.error('Falha ao adicionar aluno:', error);
-            statusEl.textContent = `Erro: ${error.message}`;
+            console.error('Erro na requisição:', error);
+            statusEl.textContent = `Erro ao salvar: ${error.message}`;
             statusEl.style.color = 'red';
         }
     });
