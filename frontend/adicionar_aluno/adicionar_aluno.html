@@ -21,67 +21,94 @@
     <div class="app">
         <aside class="sidebar">
             <nav class="nav">
-    <a href="/">Visão Geral</a>
-    <a href="/alunos_risco/" class="active">Alunos em Risco</a>
-    <a href="/relatorios/">Relatórios</a>
-    <a href="/configuracoes/">Configurações</a>
-    <a href="/adicionar_aluno/">Adicionar Aluno</a>
-</nav>
+                <a href="/">Visão Geral</a>
+                <a href="/alunos_risco/">Alunos em Risco</a>
+                <a href="/relatorios/">Relatórios</a>
+                <a href="/configuracoes/">Configurações</a>
+                <a href="/adicionar_aluno/" class="active">Adicionar Aluno</a>
+            </nav>
         </aside>
 
         <main class="main">
             <div class="card">
                 <h3>Adicionar Novo Aluno para Análise</h3>
                 <p>Insira os dados do aluno abaixo. Após o envio, o modelo de IA irá processar e gerar a predição de risco.</p>
-                <form id="addStudentForm" class="student-form">
-    <div class="form-group">
-        <label for="matricula">Matrícula</label>
-        <input type="text" id="matricula" required placeholder="Ex: 2023001">
-    </div>
-    <div class="form-group">
-        <label for="nome">Nome Completo</label>
-        <input type="text" id="nome" required placeholder="Nome do aluno">
-    </div>
-    <div class="form-group">
-        <label for="sexo">Sexo</label>
-        <select id="sexo">
-            <option value="M">Masculino</option>
-            <option value="F">Feminino</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="bairro">Bairro</label>
-        <input type="text" id="bairro" placeholder="Ex: Centro">
-    </div>
-    <div class="form-group">
-        <label for="escola">Escola de Origem</label>
-        <input type="text" id="escola" placeholder="Nome da escola">
-    </div>
-    <div class="form-group">
-        <label for="estado_civil">Estado Civil</label>
-        <select id="estado_civil">
-            <option value="solteiro">Solteiro(a)</option>
-            <option value="casado">Casado(a)</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="filhos">Possui Filhos?</label>
-        <input type="number" id="filhos" min="0" value="0">
-    </div>
 
-    <button type="submit" class="submit-btn">Salvar Aluno</button>
-</form>
-<div id="formStatus" class="form-status"></div>
+                <form id="addStudentForm" class="student-form">
+                    <div class="form-group">
+                        <label for="matricula">Matrícula</label>
+                        <input type="text" id="matricula" required placeholder="Ex: 2023001">
+                    </div>
+                    <div class="form-group">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" required placeholder="Nome do aluno">
+                    </div>
+                    <div class="form-group">
+                        <label for="sexo">Sexo</label>
+                        <select id="sexo">
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bairro">Bairro</label>
+                        <input type="text" id="bairro" placeholder="Ex: Centro">
+                    </div>
+                    <div class="form-group">
+                        <label for="escola">Escola de Origem</label>
+                        <input type="text" id="escola" placeholder="Nome da escola">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado_civil">Estado Civil</label>
+                        <select id="estado_civil">
+                            <option value="solteiro">Solteiro(a)</option>
+                            <option value="casado">Casado(a)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filhos">Quantidade de Filhos</label>
+                        <input type="number" id="filhos" min="0" value="0">
+                    </div>
+
+                    <!-- ✅ Campos que o modelo de IA precisa para a predição -->
+                    <hr style="margin: 1.5rem 0;">
+                    <h4 style="margin-bottom: 1rem;">Dados Acadêmicos (para predição)</h4>
+
+                    <div class="form-group">
+                        <label for="frequencia_media">Frequência Média (%)</label>
+                        <input type="number" id="frequencia_media" min="0" max="100" step="0.1" value="85" placeholder="Ex: 85">
+                    </div>
+                    <div class="form-group">
+                        <label for="rendimento_medio">Rendimento Médio (0 a 10)</label>
+                        <input type="number" id="rendimento_medio" min="0" max="10" step="0.1" value="7" placeholder="Ex: 7.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="disciplinas_reprovadas">Disciplinas Reprovadas</label>
+                        <input type="number" id="disciplinas_reprovadas" min="0" value="0">
+                    </div>
+
+                    <button type="submit" class="submit-btn">💾 Salvar e Processar Predição</button>
+                </form>
+
+                <div id="formStatus" class="form-status"></div>
+
+                <!-- ✅ Área que exibe o resultado da predição após salvar -->
+                <div id="resultadoPredicao" style="display:none; margin-top: 2rem;" class="card">
+                    <h4>Resultado da Predição</h4>
+                    <p id="resultadoTexto"></p>
+                </div>
+            </div>
         </main>
     </div>
-    
+
+    <!-- ✅ Aponta para frontend/adicionar_aluno.js (raiz do frontend) -->
     <script src="{% static 'adicionar_aluno.js' %}"></script>
+
     <style>
-        /* Estilos adicionais para o formulário */
         .student-form { margin-top: 2rem; }
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
