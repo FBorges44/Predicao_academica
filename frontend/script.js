@@ -84,3 +84,52 @@ document.addEventListener('DOMContentLoaded', () => {
     setupUploadModal();
     carregarAlunosDoBanco();
 });
+
+// Localização: frontend/script.js
+
+async function carregarAlunosDoBanco() {
+    const tbody = document.getElementById('studentTable');
+    if (!tbody) return;
+
+    try {
+        // 1. Busca do Banco de Dados
+        const response = await fetch(`${API_BASE_URL}/alunos/`);
+        let alunos = response.ok ? await response.json() : [];
+
+        // 2. Busca do LocalStorage
+        const alunosLocais = JSON.parse(localStorage.getItem('alunos_custom') || '[]');
+
+        // 3. Combina as listas (evitando duplicados pela matrícula)
+        const listaCompleta = [...alunos];
+        alunosLocais.forEach(local => {
+            if (!listaCompleta.find(a => a.matricula === local.matricula)) {
+                listaCompleta.push(local);
+            }
+        });
+
+        if (listaCompleta.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align: center;">Nenhum aluno encontrado.</td></tr>`;
+            return;
+        }
+
+        // 4. Ordenação e Renderização
+        tbody.innerHTML = '';
+        listaCompleta.sort((a, b) => (b.predicao?.probabilidade || 0) - (a.predicao?.probabilidade || 0));
+
+        listaCompleta.forEach(aluno => {
+            const row = document.createElement('tr');
+            const prob = aluno.predicao ? (aluno.predicao.probabilidade * 100).toFixed(1) : '0.0';
+            const risco = aluno.predicao?.risco_evasao ? 'Alto Risco' : 'Baixo Risco';
+            const cor = aluno.predicao?.risco_evasao ? 'var(--risk-high)' : 'var(--risk-low)';
+
+            row.innerHTML = `
+                <td>${aluno.nome} (${aluno.matricula})</td>
+                <td><strong>${prob}%</strong></td>
+                <td style="color: ${cor}; font-weight: bold;">${risco}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (error) {
+        console.error("Erro ao carregar:", error);
+    }
+}

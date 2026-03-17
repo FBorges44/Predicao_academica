@@ -21,12 +21,12 @@
     <div class="app">
         <aside class="sidebar">
             <nav class="nav">
-               <a href="/" class="active">Visão Geral</a>
-                <a href="/alunos_risco/">Alunos em Risco</a>
-                <a href="/relatorios/">Relatórios</a>
-                <a href="/configuracoes/">Configurações</a>
-                <a href="/adicionar_aluno/">Adicionar Aluno</a>
-            </nav>
+    <a href="/">Visão Geral</a>
+    <a href="/alunos_risco/" class="active">Alunos em Risco</a>
+    <a href="/relatorios/">Relatórios</a>
+    <a href="/configuracoes/">Configurações</a>
+    <a href="/adicionar_aluno/">Adicionar Aluno</a>
+</nav>
         </aside>
 
         <main class="main">
@@ -34,26 +34,44 @@
                 <h3>Adicionar Novo Aluno para Análise</h3>
                 <p>Insira os dados do aluno abaixo. Após o envio, o modelo de IA irá processar e gerar a predição de risco.</p>
                 <form id="addStudentForm" class="student-form">
-                    <div class="form-group">
-                        <label for="matricula">Matrícula</label>
-                        <input type="text" id="matricula" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nome">Nome Completo</label>
-                        <input type="text" id="nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="rendimento">Sexo</label>
-                        <input type="text" id="Sexo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reprovacoes">Bairro</label>
-                        <input type="text" id="Bairro" step="1" min="0" required>
-                    </div>
-                    <button type="submit" class="submit-btn">Enviar para Análise</button>
-                </form>
-                <div id="formStatus" class="form-status"></div>
-            </div>
+    <div class="form-group">
+        <label for="matricula">Matrícula</label>
+        <input type="text" id="matricula" required placeholder="Ex: 2023001">
+    </div>
+    <div class="form-group">
+        <label for="nome">Nome Completo</label>
+        <input type="text" id="nome" required placeholder="Nome do aluno">
+    </div>
+    <div class="form-group">
+        <label for="sexo">Sexo</label>
+        <select id="sexo">
+            <option value="M">Masculino</option>
+            <option value="F">Feminino</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="bairro">Bairro</label>
+        <input type="text" id="bairro" placeholder="Ex: Centro">
+    </div>
+    <div class="form-group">
+        <label for="escola">Escola de Origem</label>
+        <input type="text" id="escola" placeholder="Nome da escola">
+    </div>
+    <div class="form-group">
+        <label for="estado_civil">Estado Civil</label>
+        <select id="estado_civil">
+            <option value="solteiro">Solteiro(a)</option>
+            <option value="casado">Casado(a)</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="filhos">Possui Filhos?</label>
+        <input type="number" id="filhos" min="0" value="0">
+    </div>
+
+    <button type="submit" class="submit-btn">Salvar Aluno</button>
+</form>
+<div id="formStatus" class="form-status"></div>
         </main>
     </div>
     
