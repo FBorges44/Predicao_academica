@@ -5,7 +5,7 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     # ✅ Rota duplicada removida
-    path('', TemplateView.as_view(template_name='Index.html'), name='home'),
+    path('', TemplateView.as_view(template_name='index.html'), name='home'),
     path('alunos_risco/', TemplateView.as_view(template_name='alunos_risco/alunos_risco.html'), name='alunos_risco'),
     path('relatorios/', TemplateView.as_view(template_name='relatorios/relatorios.html'), name='relatorios'),
     path('configuracoes/', TemplateView.as_view(template_name='configuracoes/configuracoes.html'), name='configuracoes'),
