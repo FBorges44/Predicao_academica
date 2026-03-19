@@ -1,8 +1,7 @@
-django>=5.2
-djangorestframework
+django
 django-cors-headers
-gunicorn
-whitenoise
+djangorestframework
 joblib
 pandas
-scikit-learn
+numpy
+whitenoise
