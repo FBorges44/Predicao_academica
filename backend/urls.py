@@ -12,4 +12,6 @@ urlpatterns = [
     path('adicionar_aluno/', TemplateView.as_view(template_name='adicionar_aluno/adicionar_aluno.html'), name='adicionar_aluno'),
     path('admin/', admin.site.urls),
     path('api/', include('predicao.urls')),
+    # backend/urls.py — adicione esta linha:
+    path('assistente/', TemplateView.as_view(template_name='assistente/assistente.html'), name='assistente'),
 ]

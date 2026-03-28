@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from .models import Aluno
 from .serializers import AlunoSerializer
 from .servicos import processar_predicao_aluno
+from django.shortcuts import render
 
 
 class AlunoViewSet(viewsets.ModelViewSet):
@@ -130,3 +131,5 @@ def _para_int(valor):
         return int(str(valor).strip())
     except (ValueError, TypeError):
         return 0
+def pagina_assistente(request):
+    return render (request, 'assistente.html') # Sem a pasta 'assistente/' na frente
