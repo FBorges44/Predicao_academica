@@ -50,7 +50,7 @@ def chat_view(request):
             return JsonResponse({"erro": "Mensagem vazia."}, status=400)
 
         # 1. Nova forma de inicializar o Cliente
-        api_key = os.environ.get('GOOGLE_API_KEY', 'AIzaSyBML_6tPd7GX0Iww0fphigusTp9Ivy9uqA')
+        api_key = os.environ.get('GOOGLE_API_KEY', 'AIzaSyCfeV0dNSSvTOgdAPg5IBQxIobmA6Bs-kc')
         client = genai.Client(api_key=api_key)
 
         # 2. Converte o histórico para o formato do novo SDK
@@ -67,7 +67,7 @@ def chat_view(request):
 
         # 4. Gera a resposta usando o novo método
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,
