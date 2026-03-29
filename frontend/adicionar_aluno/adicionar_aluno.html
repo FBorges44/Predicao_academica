@@ -6,6 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adicionar Aluno - Painel de Evasão</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        .page-header-info {
+            margin-bottom: 1.5rem;
+            color: #7f8c8d;
+            font-size: 0.95rem;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem 2rem;
+            margin-top: 1.5rem;
+        }
+        .form-grid .full-width { grid-column: 1 / -1; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #34495e;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+            background: #fff;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0b7412;
+            box-shadow: 0 0 0 3px rgba(11,116,18,0.1);
+        }
+        .section-divider {
+            grid-column: 1 / -1;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            margin: 0.5rem 0;
+        }
+        .section-title {
+            grid-column: 1 / -1;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #0b7412;
+            margin-bottom: -0.5rem;
+        }
+        .submit-btn {
+            grid-column: 1 / -1;
+            background-color: #0b7412;
+            color: white;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+        .submit-btn:hover { background-color: #096010; }
+        .submit-btn:active { transform: scale(0.99); }
+
+        /* Status de envio */
+        .status-msg {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+        .status-msg.show { display: block; }
+        .status-msg.loading { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .status-msg.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-msg.error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+        /* Resultado da predição */
+        .prediction-result {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .prediction-result.show { display: block; }
+        .prediction-result.high  { border-color: var(--risk-high); background: #fff5f5; }
+        .prediction-result.medium{ border-color: var(--risk-medium); background: #fffbeb; }
+        .prediction-result.low   { border-color: var(--risk-low); background: #f0fdf4; }
+
+        #predIcon  { font-size: 2.5rem; }
+        #predLabel { font-size: 1.2rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+        #predProb  { font-size: 0.95rem; color: #6b7280; }
+        #predFactors { margin-top: 1rem; text-align: left; }
+
+        /* Vars locais (caso style.css não carregue) */
+        :root {
+            --risk-high: #ef4444;
+            --risk-med:  #facc15;
+            --risk-low:  #34d399;
+            --fs-xs: 0.8rem;
+            --text-muted: #6b7280;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -26,104 +136,134 @@
                 <a href="/relatorios/">Relatórios</a>
                 <a href="/configuracoes/">Configurações</a>
                 <a href="/adicionar_aluno/" class="active">Adicionar Aluno</a>
+                <a href="/assistente/">🤖 Assistente IA</a>
             </nav>
         </aside>
 
         <main class="main">
             <div class="card">
                 <h3>Adicionar Novo Aluno para Análise</h3>
-                <p>Insira os dados do aluno abaixo. Após o envio, o modelo de IA irá processar e gerar a predição de risco.</p>
+                <p class="page-header-info">
+                    Preencha os dados abaixo. O modelo de IA irá calcular automaticamente o risco de evasão
+                    e o aluno aparecerá na Visão Geral e em Alunos em Risco.
+                </p>
 
-                <form id="addStudentForm" class="student-form">
-                    <div class="form-group">
-                        <label for="matricula">Matrícula</label>
-                        <input type="text" id="matricula" required placeholder="Ex: 2023001">
-                    </div>
-                    <div class="form-group">
-                        <label for="nome">Nome Completo</label>
-                        <input type="text" id="nome" required placeholder="Nome do aluno">
-                    </div>
-                    <div class="form-group">
-                        <label for="sexo">Sexo</label>
-                        <select id="sexo">
-                            <option value="M">Masculino</option>
-                            <option value="F">Feminino</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="bairro">Bairro</label>
-                        <input type="text" id="bairro" placeholder="Ex: Centro">
-                    </div>
-                    <div class="form-group">
-                        <label for="escola">Escola de Origem</label>
-                        <input type="text" id="escola" placeholder="Nome da escola">
-                    </div>
-                    <div class="form-group">
-                        <label for="estado_civil">Estado Civil</label>
-                        <select id="estado_civil">
-                            <option value="solteiro">Solteiro(a)</option>
-                            <option value="casado">Casado(a)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filhos">Quantidade de Filhos</label>
-                        <input type="number" id="filhos" min="0" value="0">
-                    </div>
+                <!-- ID do form alinhado com o JS: addForm -->
+                <form id="addForm" novalidate>
+                    <div class="form-grid">
 
-                    <!-- ✅ Campos que o modelo de IA precisa para a predição -->
-                    <hr style="margin: 1.5rem 0;">
-                    <h4 style="margin-bottom: 1rem;">Dados Acadêmicos (para predição)</h4>
+                        <!-- IDENTIFICAÇÃO -->
+                        <div class="section-title">Identificação</div>
 
-                    <div class="form-group">
-                        <label for="frequencia_media">Frequência Média (%)</label>
-                        <input type="number" id="frequencia_media" min="0" max="100" step="0.1" value="85" placeholder="Ex: 85">
-                    </div>
-                    <div class="form-group">
-                        <label for="rendimento_medio">Rendimento Médio (0 a 10)</label>
-                        <input type="number" id="rendimento_medio" min="0" max="10" step="0.1" value="7" placeholder="Ex: 7.5">
-                    </div>
-                    <div class="form-group">
-                        <label for="disciplinas_reprovadas">Disciplinas Reprovadas</label>
-                        <input type="number" id="disciplinas_reprovadas" min="0" value="0">
-                    </div>
+                        <div class="form-group">
+                            <label for="matricula">Matrícula *</label>
+                            <input type="text" id="matricula" required placeholder="Ex: 2024001">
+                        </div>
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" required placeholder="Nome do aluno">
+                        </div>
+                        <div class="form-group">
+                            <label for="sexo">Sexo</label>
+                            <select id="sexo">
+                                <option value="M">Masculino</option>
+                                <option value="F">Feminino</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="idade">Idade</label>
+                            <input type="number" id="idade" min="15" max="60" value="18" placeholder="Ex: 20">
+                        </div>
 
-                    <button type="submit" class="submit-btn">💾 Salvar e Processar Predição</button>
+                        <!-- SOCIOECONÔMICO -->
+                        <hr class="section-divider">
+                        <div class="section-title">Perfil Socioeconômico</div>
+
+                        <div class="form-group">
+                            <label for="renda_familiar">Renda Familiar</label>
+                            <select id="renda_familiar">
+                                <option value="ate_1sm">Até 1 salário mínimo</option>
+                                <option value="1_3sm" selected>1 a 3 salários mínimos</option>
+                                <option value="3_5sm">3 a 5 salários mínimos</option>
+                                <option value="acima_5sm">Acima de 5 salários mínimos</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="estado_civil">Estado Civil</label>
+                            <select id="estado_civil">
+                                <option value="solteiro">Solteiro(a)</option>
+                                <option value="casado">Casado(a)</option>
+                                <option value="divorciado">Divorciado(a)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tem_filhos">Possui Filhos?</label>
+                            <select id="tem_filhos">
+                                <option value="0">Não</option>
+                                <option value="1">Sim</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="situacao_trabalho">Situação de Trabalho</label>
+                            <select id="situacao_trabalho">
+                                <option value="so_estuda">Só estuda</option>
+                                <option value="estuda_trabalha">Estuda e trabalha (parcial)</option>
+                                <option value="estuda_trabalha_integral">Estuda e trabalha (integral)</option>
+                            </select>
+                        </div>
+
+                        <!-- LOCALIZAÇÃO / ACESSO -->
+                        <hr class="section-divider">
+                        <div class="section-title">Localização e Acesso</div>
+
+                        <div class="form-group">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" placeholder="Ex: Centro">
+                        </div>
+                        <div class="form-group">
+                            <label for="escola_tipo">Tipo de Escola de Origem</label>
+                            <select id="escola_tipo">
+                                <option value="publica">Pública</option>
+                                <option value="privada">Privada</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="distancia">Distância até a Faculdade</label>
+                            <select id="distancia">
+                                <option value="ate_5km">Até 5 km</option>
+                                <option value="5_15km" selected>5 a 15 km</option>
+                                <option value="15_30km">15 a 30 km</option>
+                                <option value="acima_30km">Acima de 30 km</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transporte">Meio de Transporte</label>
+                            <select id="transporte">
+                                <option value="publico">Transporte Público</option>
+                                <option value="proprio">Transporte Próprio</option>
+                                <option value="carona">Carona</option>
+                                <option value="a_pe">A pé</option>
+                            </select>
+                        </div>
+
+                        <!-- BOTÃO -->
+                        <button type="submit" class="submit-btn">💾 Salvar e Processar Predição</button>
+                    </div>
                 </form>
 
-                <div id="formStatus" class="form-status"></div>
+                <div id="statusMsg" class="status-msg"></div>
 
-                <!-- ✅ Área que exibe o resultado da predição após salvar -->
-                <div id="resultadoPredicao" style="display:none; margin-top: 2rem;" class="card">
-                    <h4>Resultado da Predição</h4>
-                    <p id="resultadoTexto"></p>
+                <!-- Resultado da predição -->
+                <div id="predResult" class="prediction-result">
+                    <div id="predIcon"></div>
+                    <div id="predLabel"></div>
+                    <div id="predProb"></div>
+                    <div id="predFactors"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- ✅ Aponta para frontend/adicionar_aluno.js (raiz do frontend) -->
     <script src="{% static 'adicionar_aluno.js' %}"></script>
-
-    <style>
-        .student-form { margin-top: 2rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .submit-btn {
-            background-color: var(--sidebar-active);
-            color: white; border: none; padding: 12px 20px;
-            border-radius: 5px; cursor: pointer; font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        .submit-btn:hover { background-color: #2980b9; }
-        .form-status { margin-top: 1rem; font-weight: bold; }
-    </style>
 </body>
 </html>

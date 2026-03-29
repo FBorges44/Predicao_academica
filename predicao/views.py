@@ -131,5 +131,11 @@ def _para_int(valor):
         return int(str(valor).strip())
     except (ValueError, TypeError):
         return 0
+# ── Helpers ──────────────────────────────────────────
+def _para_int(valor):
+    try:
+        return int(str(valor).strip())
+    except (ValueError, TypeError):
+        return 0
 def pagina_assistente(request):
     return render (request, 'assistente.html') # Sem a pasta 'assistente/' na frente

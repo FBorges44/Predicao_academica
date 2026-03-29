@@ -5,7 +5,6 @@ import os
 from django.conf import settings
 
 # --- CARREGAMENTO DO MODELO DE IA ---
-# ✅ Nome do arquivo corrigido: era 'modelo_evasao.pkl', é 'modelo_predicao.pkl'
 CAMINHO_MODELO = os.path.join(settings.BASE_DIR, 'predicao', 'modelo_predicao.pkl')
 
 try:
@@ -22,52 +21,106 @@ except Exception as e:
 def executar_modelo_preditivo(dados_aluno: dict) -> dict:
     """
     Executa o modelo de IA (ou simulação se o modelo não estiver carregado).
-    Recebe os dados_json do aluno e retorna { risco_evasao, probabilidade }.
+    Aceita tanto campos acadêmicos quanto socioeconômicos.
+    Retorna { risco_evasao: bool, probabilidade: float }.
     """
 
     # --- SE O MODELO REAL ESTIVER DISPONÍVEL ---
     if MODELO_IA is not None:
         try:
-            # ✅ Colunas que o modelo espera - ajuste conforme seu treinamento
-            # Estas devem ser AS MESMAS usadas no treinamento do modelo
             colunas_do_modelo = ['frequencia_media', 'rendimento_medio', 'disciplinas_reprovadas']
-
             dados_para_predicao = pd.DataFrame([dados_aluno])
-
-            # Preenche colunas ausentes com 0 para evitar KeyError
             for col in colunas_do_modelo:
                 if col not in dados_para_predicao.columns:
                     dados_para_predicao[col] = 0
-
             dados_para_predicao = dados_para_predicao[colunas_do_modelo]
-
-            # .predict_proba()[:, 1] retorna a probabilidade da classe "evasão"
             probabilidade = float(MODELO_IA.predict_proba(dados_para_predicao)[:, 1][0])
             risco = probabilidade >= 0.50
-
             print(f"📊 Predição real: prob={probabilidade:.2f}, risco={risco}")
             return {"risco_evasao": risco, "probabilidade": probabilidade}
-
         except Exception as e:
             print(f"⚠️  Erro na predição real, usando simulação. Detalhe: {e}")
-            # Cai para a simulação abaixo
 
-    # --- SIMULAÇÃO (quando o modelo não está disponível) ---
-    # Usa uma fórmula simples baseada nos dados disponíveis
-    frequencia = dados_aluno.get('frequencia_media', 100)
-    rendimento = dados_aluno.get('rendimento_medio', 7)
-    reprovacoes = dados_aluno.get('disciplinas_reprovadas', 0)
-
-    # Quanto menor a frequência e rendimento, maior o risco
+    # --- SIMULAÇÃO INTELIGENTE ---
+    # Combina campos acadêmicos (se existirem) com campos socioeconômicos
     score = 0.0
-    score += max(0, (75 - frequencia) / 75) * 0.4   # frequência abaixo de 75% aumenta risco
-    score += max(0, (5 - rendimento) / 5) * 0.4      # rendimento abaixo de 5 aumenta risco
-    score += min(reprovacoes * 0.1, 0.2)              # cada reprovação adiciona 10% (máx 20%)
 
-    probabilidade = min(score, 0.99)
+    # ── Campos acadêmicos (upload CSV / inserção manual legada) ──────────
+    frequencia  = dados_aluno.get('frequencia_media')
+    rendimento  = dados_aluno.get('rendimento_medio')
+    reprovacoes = dados_aluno.get('disciplinas_reprovadas')
+
+    if frequencia is not None:
+        score += max(0.0, (75.0 - float(frequencia)) / 75.0) * 0.35
+    if rendimento is not None:
+        score += max(0.0, (5.0 - float(rendimento)) / 5.0) * 0.35
+    if reprovacoes is not None:
+        score += min(float(reprovacoes) * 0.08, 0.20)
+
+    # ── Campos socioeconômicos (formulário "Adicionar Aluno") ─────────────
+    # Renda familiar
+    renda = dados_aluno.get('renda_familiar', '')
+    if renda == 'ate_1sm':
+        score += 0.20
+    elif renda == '1_3sm':
+        score += 0.10
+    elif renda == 'acima_5sm':
+        score -= 0.08
+
+    # Situação de trabalho
+    trabalho = dados_aluno.get('situacao_trabalho', '')
+    if trabalho == 'estuda_trabalha_integral':
+        score += 0.22
+    elif trabalho == 'estuda_trabalha':
+        score += 0.12
+    elif trabalho == 'so_estuda':
+        score -= 0.05
+
+    # Escola de origem
+    escola = dados_aluno.get('escola_tipo', '')
+    if escola == 'publica':
+        score += 0.10
+    elif escola == 'privada':
+        score -= 0.08
+
+    # Distância
+    distancia = dados_aluno.get('distancia', '')
+    if distancia == 'acima_30km':
+        score += 0.18
+    elif distancia == '15_30km':
+        score += 0.10
+    elif distancia == '5_15km':
+        score += 0.04
+    elif distancia == 'ate_5km':
+        score -= 0.05
+
+    # Transporte
+    transporte = dados_aluno.get('transporte', '')
+    if transporte == 'publico':
+        score += 0.08
+    elif transporte == 'proprio':
+        score -= 0.05
+
+    # Filhos
+    tem_filhos = dados_aluno.get('tem_filhos', 0)
+    if int(tem_filhos) == 1:
+        score += 0.10
+
+    # Estado civil
+    estado_civil = dados_aluno.get('estado_civil', '')
+    if estado_civil == 'casado':
+        score += 0.06
+
+    # Idade
+    idade = dados_aluno.get('idade', 18)
+    if int(idade) >= 25:
+        score += 0.07
+
+    # Garante score entre 0.05 e 0.95 para não ter extremos irreais
+    probabilidade = max(0.05, min(score, 0.95))
     risco = probabilidade >= 0.50
 
-    print(f"📊 Predição simulada: prob={probabilidade:.2f}, risco={risco}")
+    print(f"📊 Predição simulada (socioeconômica): prob={probabilidade:.2f}, risco={risco}")
     return {"risco_evasao": risco, "probabilidade": probabilidade}
 
 
@@ -78,7 +131,6 @@ def processar_predicao_aluno(matricula: str, dados_json: dict):
     """
     from .models import Aluno, PredicaoEvasao
 
-    # 1. Salva ou atualiza o aluno no banco
     aluno, criado = Aluno.objects.update_or_create(
         matricula=matricula,
         defaults={
@@ -89,10 +141,8 @@ def processar_predicao_aluno(matricula: str, dados_json: dict):
     acao = "Criado" if criado else "Atualizado"
     print(f"💾 Aluno {acao}: {aluno.nome} ({matricula})")
 
-    # 2. Executa o modelo de IA
     resultado = executar_modelo_preditivo(dados_json)
 
-    # 3. Salva a predição no banco
     PredicaoEvasao.objects.update_or_create(
         aluno=aluno,
         defaults={
